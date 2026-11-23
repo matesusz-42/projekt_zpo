@@ -56,3 +56,49 @@ class Resistor(CircuitElement):
 
     def get_all_resistors(self) -> list:
         return [self]
+
+
+class CompositeConnection(CircuitElement):
+    def __init__(self, name: str, elements: list = None):
+        super().__init__(name)
+        self._elements = []
+        if elements:
+            for element in elements:
+                self.add_element(element)
+
+    @property
+    def elements(self) -> list:
+        return list(self._elements)
+
+    def add_element(self, element: CircuitElement) -> None:
+        if not isinstance(element, CircuitElement):
+            raise InvalidValueError("element musi dziedziczyc po CircuitElement")
+        self._elements.append(element)
+
+    def _validate_not_empty(self) -> None:
+        if not self._elements:
+            raise EmptyConnectionError(f"polaczenie {self._name} jest puste")
+
+    def get_all_resistors(self) -> list:
+        resistors = []
+        for element in self._elements:
+            resistors.extend(element.get_all_resistors())
+        return resistors
+
+
+class SeriesConnection(CompositeConnection):
+    def get_resistance(self) -> float:
+        self._validate_not_empty()
+        total_resistance = 0.0
+        for element in self._elements:
+            total_resistance += element.get_resistance()
+        return total_resistance
+
+    def update_state(self, voltage: float, current: float) -> None:
+        self._validate_not_empty()
+        self._set_electrical_state(voltage, current)
+        for element in self._elements:
+            element_voltage = current * element.get_resistance()
+            element.update_state(element_voltage, current)
+
+
