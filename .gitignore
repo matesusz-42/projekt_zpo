@@ -96,3 +96,6 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 .streamlit/secrets.toml
+#lista smieci ktore Git ma nie wysylac na GitHuba czyli np
+#folder __pycache__ w ktorym python chowa tymczasowe 
+#pliki czy .vscode/ z prywatnymi ustawieniami edytora
