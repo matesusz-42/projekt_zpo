@@ -102,3 +102,18 @@ class SeriesConnection(CompositeConnection):
             element.update_state(element_voltage, current)
 
 
+class ParallelConnection(CompositeConnection):
+    def get_resistance(self) -> float:
+        self._validate_not_empty()
+        conductance_sum = 0.0
+        for element in self._elements:
+            conductance_sum += 1.0/element.get_resistance()
+        return 1.0 / conductance_sum
+
+    def update_state(self, voltage: float, current: float) -> None:
+        self._validate_not_empty()
+        self._set_electrical_state(voltage, current)
+
+        for element in self._elements:
+            element_current = voltage/element.get_resistance()
+            element.update_state(voltage, element_current)
